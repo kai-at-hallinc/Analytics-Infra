@@ -12,7 +12,7 @@ param environmentType string
 @maxLength(13)
 param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
-var storageAccountName = 'hallinc-st-${resourceNameSuffix}'
+var storageAccountName = 'hallincst${resourceNameSuffix}'
 var environmentConfiguration = {
   test: {
     storageAccountType: 'Standard_LRS'
