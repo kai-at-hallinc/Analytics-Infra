@@ -7,5 +7,5 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: 'placeholder step'
-              run: echo "Hello, World!"
+              run: echo "Hello, ${{ github.actor }}"
     
