@@ -1,6 +1,12 @@
 name: test-deployment
+concurrency: hallinc-workflow
 
-on: [workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'deploy/**'
 
 permissions:
   id-token: write
