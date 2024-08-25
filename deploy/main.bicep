@@ -35,11 +35,4 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
 }
 
-// add service endpoints to the storage account using parent syntax
-resource storageAccountServiceEndpoint 'Microsoft.Storage/storageAccounts/serviceEndpoints@2022-09-01' = {
-  parent: storageAccount
-  name: 'Microsoft.Storage'
-  properties: {
-    serviceEndpointType: 'Microsoft.Storage'
-  }
-}
+output storageAccountName string = storageAccount.name
