@@ -30,4 +30,7 @@ New-AzADAppFederatedCredential `
   -Audience 'api://AzureADTokenExchange' `
   -Subject $federationPolicy
 
-
+# output variables for the GitHub actions
+Write-Host "AZURE_CLIENT_ID: $appRegistrationAppId"
+Write-Host "AZURE_TENANT_ID: $((Get-AzContext).Tenant.Id)"
+Write-Host "AZURE_SUBSCRIPTION_ID: $((Get-AzContext).Subscription.Id)"

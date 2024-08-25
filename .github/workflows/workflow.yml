@@ -27,5 +27,3 @@ jobs:
                 template: ./deploy/main.bicep
                 parameters: environmentType=${{ env.ENVIRONMENT }}
                 scope: 'resourcegroup'
-
-                
