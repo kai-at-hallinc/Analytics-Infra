@@ -36,3 +36,5 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }
 
 output storageAccountName string = storageAccount.name
+
+// commented for to run teh pipeline
