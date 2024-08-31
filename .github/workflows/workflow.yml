@@ -16,47 +16,68 @@ env:
 
 jobs:
     lint:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v3
-          - name: run bicep linter
-            run: az bicep build --file deploy/main.bicep
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - name: run bicep linter
+          run: az bicep build --file deploy/main.bicep
     
     validate:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v3
-          - uses: azure/login@v1
-            name: sign in to azure
-            with:
-              client-id: ${{ secrets.AZURE_CLIENT_ID }}
-              tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-              subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          - uses: azure/arm-deploy@v1
-            with:
-              deploymentName: ${{ github.run_number }}
-              resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
-              template: ./deploy/main.bicep
-              parameters: environmentType=${{ env.ENVIRONMENT }}
-              deploymentMode: Validate
-              scope: 'resourcegroup'
-              
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - uses: azure/login@v1
+          name: sign in to azure
+          with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        - uses: azure/arm-deploy@v1
+          with:
+            deploymentName: ${{ github.run_number }}
+            resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
+            template: ./deploy/main.bicep
+            parameters: environmentType=${{ env.ENVIRONMENT }}
+            deploymentMode: Validate
+            scope: 'resourcegroup'
+    
+    preview:
+      runs-on: ubuntu-latest
+      needs: [lint, validate]
+      steps:
+        - uses: actions/checkout@v3
+        - uses: azure/login@v1
+          with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        - uses: azure/arm-deploy@v1
+          name: run what-if
+          with:
+            failOnStdErr: false
+            resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
+            template: deploy/main.bicep
+            parameters: environmentType=${{ env.ENVIRONMENT }}
+            additionalArguments: --what-if
+            scope: 'resourcegroup'
+            
         
     deploy:
-        runs-on: ubuntu-latest
-        needs: [lint, validate]
-        steps:
-          - uses: actions/checkout@v3
-          - uses: azure/login@v1
-            with:
-              client-id: ${{ secrets.AZURE_CLIENT_ID }}
-              subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-              tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          - uses: azure/arm-deploy@v1
-            with:
-              failOnStdErr: false
-              deploymentName: ${{ github.run_id }}
-              resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
-              template: ./deploy/main.bicep
-              parameters: environmentType=${{ env.ENVIRONMENT }}
-              scope: 'resourcegroup'
+      runs-on: ubuntu-latest
+      environment: analytics
+      needs: preview
+      steps:
+        - uses: actions/checkout@v3
+        - uses: azure/login@v1
+          with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        - uses: azure/arm-deploy@v1
+          with:
+            failOnStdErr: false
+            deploymentName: ${{ github.run_id }}
+            resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
+            template: ./deploy/main.bicep
+            parameters: environmentType=${{ env.ENVIRONMENT }}
+            scope: 'resourcegroup'
