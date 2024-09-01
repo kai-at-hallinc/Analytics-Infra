@@ -3,8 +3,8 @@ param location string = resourceGroup().location
 
 @description('The type of environment (dev or prod.')
 @allowed([
-  'test'
-  'prod'
+  'Test'
+  'Production'
 ])
 param environmentType string
 
@@ -14,10 +14,10 @@ param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
 var storageAccountName = 'hallincst${resourceNameSuffix}'
 var environmentConfiguration = {
-  test: {
+  Test: {
     storageAccountType: 'Standard_LRS'
   }
-  prod: {
+  Production: {
     storageAccountType: 'Premium_LRS'
   }
 }

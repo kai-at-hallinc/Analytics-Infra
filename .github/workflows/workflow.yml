@@ -20,7 +20,7 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     needs: lint
     with:
-      environmentType: test
+      environmentType: Test
       resourceGroupName: hallinc-analytics-sandbox
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
@@ -32,7 +32,7 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     needs: deploy-test
     with:
-      environmentType: prod
+      environmentType: Production
       resourceGroupName: hallinc-analytics-production
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PRODUCTION }}
