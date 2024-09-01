@@ -96,6 +96,10 @@ jobs:
           run: |
             pwsh -Command "Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser"
             pwsh -Command "Import-Module Az"
+            
+        - name: Connect to Azure Account
+          run: |
+            pwsh -Command "Connect-AzAccount -Identity"
 
         - name: Run smoke tests
           run: |
@@ -103,13 +107,5 @@ jobs:
             Invoke-Pester -Container $container -CI
           shell: pwsh
           continue-on-error: true
-    
-    print-output:
-      runs-on: ubuntu-latest
-      needs: deploy
-      steps:
-        - run: |
-            echo "Storage Account Name: ${{ needs.deploy.outputs.storageAccountName }}"
-            echo "Storage Account Name: ${{ inputs.resourceGroupName }}"
 
 
