@@ -19,13 +19,10 @@ Describe 'parameters' {
 }
 
 Describe 'Azure CLI Tests' {
-  Context 'When connecting to Azure' {
-      It 'Should connect to Azure successfully' {
-          # Connect to Azure
-          $connection = Connect-AzAccount -ErrorAction Stop
-          
-          # Verify the connection
-          $connection | Should -Not -BeNullOrEmpty
+  Context 'account' {
+      It 'list accounts using azure cli' {
+          $result = az storage account list --resource-group $resourceGroupName --query "[?name=='$storageAccountName']" --output json | ConvertFrom-Json
+          $result | Should -Not -BeNullOrEmpty
       }
   }
 }
