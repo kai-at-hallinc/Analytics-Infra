@@ -16,9 +16,15 @@ var storageAccountName = 'hallincst${resourceNameSuffix}'
 var environmentConfiguration = {
   Test: {
     storageAccountType: 'Standard_LRS'
+    properties: {
+      isHnsEnabled: true
+    }
   }
   Production: {
     storageAccountType: 'Premium_LRS'
+    properties: {
+      isHnsEnabled: null
+    }
   }
 }
 
@@ -30,6 +36,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     name: environmentConfiguration[environmentType].storageAccountType
   }
   kind: 'StorageV2'
+  properties: environmentConfiguration[environmentType].properties
 }
 
 output storageAccountName string = storageAccount.name
