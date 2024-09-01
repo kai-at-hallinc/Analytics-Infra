@@ -18,7 +18,7 @@ Describe 'parameters' {
   }
 }
 
-# azure/login@v1 logged in using azcli. use cli commands
+# azure/login@v1 logged in by azcli. use cli commands
 
 Describe 'test infrastructure' {
   
@@ -33,14 +33,14 @@ Describe 'test infrastructure' {
       }
       It 'container can be created' {
           $containerName = 'testcontainer'
-          $result = az storage container create --name $containerName --account-name $storageAccountName --resource-group $resourceGroupName
+          $result = az storage container create --name $containerName --account-name $storageAccountName
           $result | Should -Not -BeNullOrEmpty
       }
-      
+
+      # Teardown actions
       AfterAll {
-        # Teardown actions
         $containerName = 'testcontainer'
-        az storage container delete --name $containerName --account-name $storageAccountName --resource-group $resourceGroupName
+        az storage container delete --name $containerName --account-name $storageAccountName
     }
   }
 }
