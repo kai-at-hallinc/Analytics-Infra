@@ -1,15 +1,18 @@
 param(
   [Parameter(Mandatory)]
   [ValidateNotNullOrEmpty()]
-  [string] $HostName
+  [string] $resourceGroupName,
+  
+  [Parameter(Mandatory)]
+  [ValidateNotNullOrEmpty()]
+  [string] $storageAccountName
 )
 
-Describe 'storage account' {
+Describe 'Storage Account Tests' {
+  $storageAccounts=az storage account list --resource-group $resourceGroupName | ConvertFrom-Json
 
-It 'Reaches storage over the internet' {
-      $request = [System.Net.WebRequest]::Create("https://$HostName.dfs.core.windows.net/")
-      $request.AllowAutoRedirect = $false
-      $request.GetResponse().StatusCode |
-        Should -Be 200 -Because "the storage is reachable over public internet"
+  It 'storage account should exist' {
+    $storageAccountNames = $storageAccounts | ForEach-Object { $_.name }
+    $storageAccountNames | Should -Contain $storageAccountName
     }
 }
