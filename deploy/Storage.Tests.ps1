@@ -18,11 +18,29 @@ Describe 'parameters' {
   }
 }
 
-Describe 'Azure CLI Tests' {
-  Context 'account' {
-      It 'list accounts using azure cli' {
-          $result = az storage account list --resource-group $resourceGroupName --query "[?name=='$storageAccountName']" --output json | ConvertFrom-Json
+# azure/login@v1 logged in using azcli. use cli commands
+
+Describe 'test infrastructure' {
+  
+  Context 'storage account' {
+      It 'storage accounts using azure cli' {
+          $result = az storage account list --resource-group $resourceGroupName --query "[?name=='$storageAccountName']" -o tsv
           $result | Should -Not -BeNullOrEmpty
       }
+      It 'storage aacount has IsHnsEnabled' {
+          $result = az storage account show --name $storageAccountName --resource-group $resourceGroupName --query "isHnsEnabled" -o tsv
+          $result | Should -Be 'true'
+      }
+      It 'container can be created' {
+          $containerName = 'testcontainer'
+          $result = az storage container create --name $containerName --account-name $storageAccountName --resource-group $resourceGroupName
+          $result | Should -Not -BeNullOrEmpty
+      }
+      
+      AfterAll {
+        # Teardown actions
+        $containerName = 'testcontainer'
+        az storage container delete --name $containerName --account-name $storageAccountName --resource-group $resourceGroupName
+    }
   }
 }
