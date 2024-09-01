@@ -96,10 +96,6 @@ jobs:
           run: |
             pwsh -Command "Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser"
             pwsh -Command "Import-Module Az"
-            
-        - name: Connect to Azure Account
-          run: |
-            pwsh -Command "Connect-AzAccount -Identity"
 
         - name: Run smoke tests
           run: |

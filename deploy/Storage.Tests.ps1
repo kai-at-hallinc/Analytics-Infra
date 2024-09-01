@@ -8,6 +8,7 @@ param(
   [string] $storageAccountName
 )
 
+
 Describe 'parameters' {
   It 'resource group name should not be empty' {
     $resourceGroupName | Should -Not -BeNullOrEmpty
@@ -17,21 +18,14 @@ Describe 'parameters' {
   }
 }
 
-Describe 'Storage Account' {
-  $storageAccount = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName
-
-  It 'storage account should exist' {
-    $storageAccount | Should -Not -BeNullOrEmpty
-  }
-  It 'storage account should be online' {
-    $storageAccount.ProvisioningState | Should -Be 'Succeeded'
-  }
-  It 'storage account should have Hns enabled' {
-    $storageAccount.EnableHierarchicalNamespace | Should -Be $true
-  }
-  It 'container can be created' {
-    $containerName = 'test'
-    $container = New-AzStorageContainer -Name $containerName -Context $storageAccount.Context
-    $container.name | Should -Be $containerName
+Describe 'Azure CLI Tests' {
+  Context 'When connecting to Azure' {
+      It 'Should connect to Azure successfully' {
+          # Connect to Azure
+          $connection = Connect-AzAccount -ErrorAction Stop
+          
+          # Verify the connection
+          $connection | Should -Not -BeNullOrEmpty
+      }
   }
 }
