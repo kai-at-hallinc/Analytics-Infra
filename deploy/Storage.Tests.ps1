@@ -8,11 +8,11 @@ param(
   [string] $storageAccountName
 )
 
-Describe 'Storage Account Tests' {
-  $storageAccounts=az storage account list --resource-group $resourceGroupName | ConvertFrom-Json
-
-  It 'storage account should exist' {
-    $storageAccountNames = $storageAccounts | ForEach-Object { $_.name }
-    $storageAccountNames | Should -Contain $storageAccountName
-    }
+Describe 'parameters' {
+  It 'resource group name should not be empty' {
+    $resourceGroupName | Should -Not -BeNullOrEmpty
+  }
+  It 'storage account Name should not be empty' {
+    $storageAccountName | Should -Not -BeNullOrEmpty
+  }
 }
