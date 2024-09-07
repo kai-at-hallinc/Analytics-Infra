@@ -28,6 +28,8 @@ var environmentConfiguration = {
   }
 }
 
+var storageAccountBlobContainerName = 'data'
+
 // create a storage account resource with hiearchical namespace enabled
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
@@ -37,8 +39,18 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
   kind: 'StorageV2'
   properties: environmentConfiguration[environmentType].properties
+
+  resource blobService 'blobServices' = {
+    name: 'default'
+
+    resource storageAccountBlobContainer 'containers' = {
+      name: storageAccountBlobContainerName
+      properties: {
+        publicAccess: 'Blob'
+      }
+    }
+  }
 }
 
 output storageAccountName string = storageAccount.name
-
-// commented for to run test pipeline
+output storageAccountImagesBlobContainerName string = storageAccount::blobService::storageAccountBlobContainer.name

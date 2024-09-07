@@ -98,5 +98,3 @@ jobs:
             Invoke-Pester -Container $container -CI
           shell: pwsh
           continue-on-error: true
-
-

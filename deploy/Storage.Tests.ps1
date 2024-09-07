@@ -36,7 +36,6 @@ Describe 'test infrastructure' {
           $result = az storage container create --name $containerName --account-name $storageAccountName
           $result | Should -Not -BeNullOrEmpty
       }
-
       # Teardown actions
       AfterAll {
         $containerName = 'testcontainer'
