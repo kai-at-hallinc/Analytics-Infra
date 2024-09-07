@@ -14,8 +14,8 @@ jobs:
           uses: microsoft/setup-msbuild@v1.1
     
         - name: Build database project
-          working-directory: ./src/wwi
-          run: MSBuild.exe src/wwi/wwi.sqlproj -property:Configuration=Release
+          working-directory: ./src/wwi/
+          run: MSBuild.exe wwi.sqlproj -property:Configuration=Release
     
         - name: Upload website as workflow artifact
           uses: actions/upload-artifact@v3
