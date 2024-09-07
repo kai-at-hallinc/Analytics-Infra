@@ -12,30 +12,45 @@ permissions:
   contents: read
 
 jobs:
+
+  # Build the database.
+  build:
+    uses: ./.github/workflows/build.yml
+  
+    # Lint the code.
   lint:
     uses: ./.github/workflows/lint.yml
 
   # Deploy to the test environment.
   deploy-test:
     uses: ./.github/workflows/deploy.yml
-    needs: lint
+    needs: 
+    - build
+    - lint
     with:
       environmentType: Test
       resourceGroupName: hallinc-analytics-sandbox
+      sqlServerAdministratorLogin: sqlServerAdmin
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      sqlServerAdministratorLoginPassword: ${{ secrets.SQL_SERVER_ADMINISTRATOR_LOGIN_PASSWORD_TEST }}
 
   # Deploy to the production environment.
   deploy-production:
     uses: ./.github/workflows/deploy.yml
-    needs: deploy-test
+    needs: 
+    - deploy-test
+    - lint
+    - build
     with:
       environmentType: Production
       resourceGroupName: hallinc-analytics-production
+      sqlServerAdministratorLogin: sqlServerAdmin
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PRODUCTION }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      sqlServerAdministratorLoginPassword: ${{ secrets.SQL_SERVER_ADMINISTRATOR_LOGIN_PASSWORD_TEST }}
     

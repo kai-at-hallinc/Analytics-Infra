@@ -11,12 +11,17 @@ on:
                 required: true
                 type: string
                 description: 'The resource group to deploy to'
+            sqlServerAdministratorLogin:
+                required: true
+                type: string
         secrets:
             AZURE_CLIENT_ID:
                 required: true
             AZURE_TENANT_ID:
                 required: true
             AZURE_SUBSCRIPTION_ID:
+                required: true
+            sqlServerAdministratorLoginPassword:
                 required: true
 jobs:
     validate:
@@ -39,6 +44,8 @@ jobs:
             template: ./deploy/main.bicep
             parameters: > 
               environmentType=${{ inputs.environmentType }}
+              sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }}
+              sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }}
             deploymentMode: Validate
             scope: 'resourcegroup'
 
@@ -51,6 +58,8 @@ jobs:
             template: ./deploy/main.bicep
             parameters: >
               environmentType=${{ inputs.environmentType }}
+              sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }}
+              sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }}
             additionalArguments: --what-if
             scope: 'resourcegroup'
     
@@ -60,6 +69,9 @@ jobs:
         runs-on: ubuntu-latest
         outputs:
             storageAccountName: ${{ steps.deploy.outputs.storageAccountName }}
+            storageAccountBlobContainerName: ${{ steps.deploy.outputs.storageAccountBlobContainerName }}
+            sqlServerFullyQualifiedDomainName: ${{ steps.deploy.outputs.sqlServerFullyQualifiedDomainName }}
+            sqlDatabaseName: ${{ steps.deploy.outputs.sqlDatabaseName }}
         steps:
         - uses: actions/checkout@v3
         - uses: azure/login@v1
@@ -78,8 +90,51 @@ jobs:
             template: ./deploy/main.bicep
             parameters: >
                 environmentType=${{ inputs.environmentType }}
+                sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }}
+                sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }}
             scope: 'resourcegroup'
     
+    deploy-database:
+        needs: deploy
+        environment: ${{ inputs.environmentType }}
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/download-artifact@v3
+        - uses: azure/login@v1
+          name: Sign in to Azure
+          with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        - uses: azure/sql-action@v1.2
+          name: Deploy DACPAC to database
+          with:
+            server-name: ${{ needs.deploy.outputs.sqlServerFullyQualifiedDomainName }}
+            connection-string: ${{ format('Server={0};Initial Catalog={1};User Id={2};Password={3};', needs.deploy.outputs.sqlServerFullyQualifiedDomainName, needs.deploy.outputs.sqlDatabaseName, inputs.sqlServerAdministratorLogin, secrets.sqlServerAdministratorLoginPassword) }}
+            dacpac-package: database/wwi.Database.dacpac
+    
+    seed-storage-account:
+        needs: deploy
+        environment: ${{ inputs.environmentType }}
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v3
+        - uses: azure/login@v1
+          name: Sign in to Azure
+          with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        - if: inputs.environmentType != 'Production'
+          uses: azure/CLI@v1
+          name: Upload sample file to storage
+          with:
+            inlineScript: |
+                az storage blob upload-batch \
+                    --account-name ${{ needs.deploy.outputs.storageAccountName }} \
+                    --destination ${{ needs.deploy.outputs.storageAccountBlobContainerName }} \
+                    --source 'deploy/sample-data/test'
+
     smoke-test:
         runs-on: ubuntu-latest
         needs: deploy
@@ -91,7 +146,6 @@ jobs:
             client-id: ${{ secrets.AZURE_CLIENT_ID }}
             tenant-id: ${{ secrets.AZURE_TENANT_ID }}
             subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
         - name: Run smoke tests
           run: |
             $container = New-PesterContainer -Path 'deploy/Storage.Tests.ps1' -Data @{ storageAccountName = '${{needs.deploy.outputs.storageAccountName}}'; resourceGroupName = '${{inputs.resourceGroupName}}'}

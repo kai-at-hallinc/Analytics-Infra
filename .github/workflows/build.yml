@@ -21,4 +21,4 @@ jobs:
           uses: actions/upload-artifact@v3
           with:
             name: database
-            path: ./src/wwi/bin/Release/wwi.ToyCompany.Database.dacpac
+            path: ./src/wwi/bin/Release/wwi.Database.dacpac

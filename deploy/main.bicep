@@ -20,6 +20,23 @@ param sqlServerAdministratorLogin string
 param sqlServerAdministratorLoginPassword string
 
 var storageAccountName = 'hallincst${resourceNameSuffix}'
+var storageAccountBlobContainerName = 'data'
+var sqlServerName = 'hallinc-${resourceNameSuffix}'
+var sqlDatabaseName = 'WorldWideImporters'
+
+// Define the connection string to access Azure SQL.
+var sqlDatabaseConnectionString = '''
+  Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;
+  Initial Catalog=${sqlDatabase.name};
+  Persist Security Info=False;
+  User ID=${sqlServerAdministratorLogin};
+  Password=${sqlServerAdministratorLoginPassword};
+  MultipleActiveResultSets=False;
+  Encrypt=True;
+  TrustServerCertificate=False;
+  Connection Timeout=30;
+'''
+// set evironment configuration for resources 
 var environmentConfiguration = {
   Test: {
     storageAccountType: 'Standard_LRS'
@@ -46,23 +63,6 @@ var environmentConfiguration = {
     }
   }
 }
-
-var storageAccountBlobContainerName = 'data'
-var sqlServerName = 'hallinc-${resourceNameSuffix}'
-var sqlDatabaseName = 'WorldWideImporters'
-
-// Define the connection string to access Azure SQL.
-var sqlDatabaseConnectionString = '''
-  Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;
-  Initial Catalog=${sqlDatabase.name};
-  Persist Security Info=False;
-  User ID=${sqlServerAdministratorLogin};
-  Password=${sqlServerAdministratorLoginPassword};
-  MultipleActiveResultSets=False;
-  Encrypt=True;
-  TrustServerCertificate=False;
-  Connection Timeout=30;
-'''
 
 // create a storage account resource with hiearchical namespace enabled
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
@@ -112,7 +112,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
 }
 
 output storageAccountName string = storageAccount.name
-output storageAccountImagesBlobContainerName string = storageAccount::blobService::storageAccountBlobContainer.name
+output storageAccountBlobContainerName string = storageAccount::blobService::storageAccountBlobContainer.name
 output sqlServerFullyQualifiedDomainName string = sqlServer.properties.fullyQualifiedDomainName
 output sqlDatabaseName string = sqlDatabase.name
 output sqlDatabaseConnectionString string = sqlDatabaseConnectionString
