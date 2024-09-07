@@ -12,12 +12,8 @@ permissions:
   contents: read
 
 jobs:
-
-  # Build the database.
-  build:
-    uses: ./.github/workflows/build.yml
   
-    # Lint the code.
+  # Lint the code.
   lint:
     uses: ./.github/workflows/lint.yml
 
@@ -25,7 +21,6 @@ jobs:
   deploy-test:
     uses: ./.github/workflows/deploy.yml
     needs: 
-    - build
     - lint
     with:
       environmentType: Test
@@ -43,7 +38,6 @@ jobs:
     needs: 
     - deploy-test
     - lint
-    - build
     with:
       environmentType: Production
       resourceGroupName: hallinc-analytics-production
