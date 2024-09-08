@@ -42,6 +42,12 @@ var environmentConfiguration = {
     storageAccountType: 'Standard_LRS'
     properties: {
       isHnsEnabled: true
+      allowBlobPublicAccess: true
+    }
+    blobContainers: {
+      properties: {
+        publicAccess: 'Blob'
+      }
     }
     sqlDatabase: {
       properties: {
@@ -57,6 +63,12 @@ var environmentConfiguration = {
     storageAccountType: 'Premium_LRS'
     properties: {
       isHnsEnabled: null
+    }
+
+    blobContainers: {
+      properties: {
+        publicAccess: 'None'
+      }
     }
     sqlDatabase: {
       properties: {
@@ -85,9 +97,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 
     resource storageAccountBlobContainer 'containers' = {
       name: storageAccountBlobContainerName
-      properties: {
-        publicAccess: 'Blob'
-      }
+      properties: environmentConfiguration[environmentType].blobContainers.properties
     }
   }
 }
