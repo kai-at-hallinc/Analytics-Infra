@@ -46,7 +46,6 @@ var environmentConfiguration = {
     sqlDatabase: {
       properties: {
         collation: 'SQL_Latin1_General_CP1_CI_AS'
-        useFreeLimit: true
       }
       sku: {
         name: 'Basic'
@@ -62,7 +61,6 @@ var environmentConfiguration = {
     sqlDatabase: {
       properties: {
         collation: 'SQL_Latin1_General_CP1_CI_AS'
-        useFreeLimit: true
       }
       sku: {
         name: 'Standard'
