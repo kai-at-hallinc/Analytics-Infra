@@ -18,10 +18,10 @@ jobs:
     uses: ./.github/workflows/lint.yml
 
   # Deploy to the test environment.
-  deploy-test:
+  deploy-to-test:
     uses: ./.github/workflows/deploy.yml
     needs: 
-    - lint
+        - lint
     with:
       environmentType: Test
       resourceGroupName: hallinc-analytics-sandbox
@@ -33,18 +33,18 @@ jobs:
       sqlServerAdministratorLoginPassword: ${{ secrets.SQL_SERVER_ADMINISTRATOR_LOGIN_PASSWORD_TEST }}
 
   # Deploy to the production environment.
-  deploy-production:
-    uses: ./.github/workflows/deploy.yml
-    needs: 
-    - deploy-test
-    - lint
-    with:
-      environmentType: Production
-      resourceGroupName: hallinc-analytics-production
-      sqlServerAdministratorLogin: sqlServerAdmin
-    secrets:
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PRODUCTION }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      sqlServerAdministratorLoginPassword: ${{ secrets.SQL_SERVER_ADMINISTRATOR_LOGIN_PASSWORD_TEST }}
+  deploy-to-production:
+      if: ${{ vars.DEPLOY_TO_PRODUCTION == true }}
+      uses: ./.github/workflows/deploy.yml
+      needs:
+          - deploy-to-test
+      with:
+          environmentType: Production
+          resourceGroupName: hallinc-analytics-production
+          sqlServerAdministratorLogin: sqlServerAdmin
+      secrets:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PRODUCTION }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          sqlServerAdministratorLoginPassword: ${{ secrets.SQL_SERVER_ADMINISTRATOR_LOGIN_PASSWORD_PRODUCTION }}
     

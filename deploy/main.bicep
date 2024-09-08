@@ -44,9 +44,13 @@ var environmentConfiguration = {
       isHnsEnabled: true
     }
     sqlDatabase: {
+      properties: {
+        collation: 'SQL_Latin1_General_CP1_CI_AS'
+        useFreeLimit: true
+      }
       sku: {
-        name: 'Standard'
-        tier: 'Standard'
+        name: 'Basic'
+        tier: 'basic'
       }
     }
   }
@@ -56,6 +60,10 @@ var environmentConfiguration = {
       isHnsEnabled: null
     }
     sqlDatabase: {
+      properties: {
+        collation: 'SQL_Latin1_General_CP1_CI_AS'
+        useFreeLimit: true
+      }
       sku: {
         name: 'Standard'
         tier: 'Standard'
@@ -109,6 +117,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
   name: sqlDatabaseName
   location: location
   sku: environmentConfiguration[environmentType].sqlDatabase.sku
+  properties: environmentConfiguration[environmentType].sqlDatabase.properties
 }
 
 output storageAccountName string = storageAccount.name
