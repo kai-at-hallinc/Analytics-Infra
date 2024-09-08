@@ -46,7 +46,7 @@ var environmentConfiguration = {
     }
     blobContainers: {
       properties: {
-        publicAccess: 'Blob'
+        publicAccess: 'None'
       }
     }
     sqlDatabase: {
