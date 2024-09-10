@@ -52,6 +52,9 @@ var environmentConfiguration = {
     sqlDatabase: {
       properties: {
         collation: 'SQL_Latin1_General_CP1_CI_AS'
+        autoPauseDelay: '30'
+        freeLimitExhaustionBehavior: 'Pause'
+        useFreeLimit: true
       }
       sku: {
         name: 'Basic'
