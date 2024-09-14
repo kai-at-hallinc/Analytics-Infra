@@ -1,6 +1,5 @@
 # variables
 $appRegistrationName = "hallinc-github-workflow"
-$fedarationPolicy="repo:kai-at-hallinc/analytics-infra:ref:refs/heads/main"
 
 # create an application registration in entraid
 $appRegistrationObject= $(New-AzADApplication -DisplayName $appRegistrationName)

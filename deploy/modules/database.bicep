@@ -1,36 +1,39 @@
-@description('The Azure region into which the resources should be deployed.')
+@description('The Azure region into which the resources should be deployed')
 param location string
-
-@secure()
-@description('The administrator login username for the SQL server.')
+@description('The name of the SQL server')
+param sqlServerName string
+@description('The name of the SQL database')
+param sqlDatabaseName string
+@description('The administrator login username for the SQL server')
 param sqlServerAdministratorLogin string
-
+@description('The administrator login password for the SQL server')
 @secure()
-@description('The administrator login password for the SQL server.')
 param sqlServerAdministratorLoginPassword string
+@description('configuration for database')
+param environmentConfiguration object
+@description('The type of environment to deploy')
+param environmentType string
+param databaseEndpointName string
+param databaseLinkName string
+param privateSubnetId string
+param vnetId string
 
-@description('The name and tier of the SQL database SKU.')
-param sqlDatabaseSku object = {
-  name: 'Standard'
-  tier: 'Standard'
-}
+var sqlDatabaseConnectionString = '''
+  Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;
+  Initial Catalog=${sqlDatabase.name};
+  Persist Security Info=False;
+  User ID=${sqlServerAdministratorLogin};
+  Password=${sqlServerAdministratorLoginPassword};
+  MultipleActiveResultSets=False;
+  Encrypt=True;
+  TrustServerCertificate=False;
+  Connection Timeout=30;
+'''
 
-@description('The name of the environment. This must be Development or Production.')
-@allowed([
-  'Development'
-  'Production'
-])
-param environmentName string = 'Development'
+var databaseDnsZoneName = environment().suffixes.storage
+var databaseDnsGroupName = 'hallinc-storage-dns-zone'
 
-@description('The name of the audit storage account SKU.')
-param auditStorageAccountSkuName string = 'Standard_LRS'
-
-var sqlServerName = 'hallinc${location}${uniqueString(resourceGroup().id)}'
-var sqlDatabaseName = 'halincdb${location}${uniqueString(resourceGroup().id)}'
-var auditingEnabled = environmentName == 'Production'
-var auditStorageAccountName = take('storageaudits${location}${uniqueString(resourceGroup().id)}', 24)
-
-resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
   name: sqlServerName
   location: location
   properties: {
@@ -39,32 +42,76 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' = {
   }
 }
 
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2021-11-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
   parent: sqlServer
   name: sqlDatabaseName
   location: location
-  sku: sqlDatabaseSku
+  sku: environmentConfiguration[environmentType].sqlDatabase.sku
+  properties: environmentConfiguration[environmentType].sqlDatabase.properties
 }
 
-resource auditStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = if (auditingEnabled) {
-  name: auditStorageAccountName
-  location: location
-  sku: {
-    name: auditStorageAccountSkuName
-  }
-  kind: 'StorageV2'  
-}
-
-resource sqlServerAudit 'Microsoft.Sql/servers/auditingSettings@2021-11-01-preview' = if (auditingEnabled) {
+resource sqlServerFirewallRule 'Microsoft.Sql/servers/firewallRules@2022-05-01-preview' = {
   parent: sqlServer
-  name: 'default'
+  name: 'AllowAllAzureIps'
   properties: {
-    state: 'Enabled'
-    storageEndpoint: environmentName == 'Production' ? auditStorageAccount.properties.primaryEndpoints.blob : ''
-    storageAccountAccessKey: environmentName == 'Production' ? auditStorageAccount.listKeys().keys[0].value : ''
+    endIpAddress: '0.0.0.0'
+    startIpAddress: '0.0.0.0'
   }
 }
 
-output serverName string = sqlServer.name
-output location string = location
-output serverFullyQualifiedDomainName string = sqlServer.properties.fullyQualifiedDomainName
+resource databaseEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
+  name: databaseEndpointName
+  location: location
+  properties: {
+    privateLinkServiceConnections: [
+      {
+        name: databaseLinkName
+        properties: {
+          privateLinkServiceId: resourceId('Microsoft.Sql/servers', sqlServerName)
+          groupIds: [
+            'sqlServerHostname'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: privateSubnetId
+    }
+  }
+}
+
+resource databaseDnsZone 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: databaseDnsZoneName
+  location: 'global'
+}
+
+resource databaseDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+  name: databaseDnsGroupName
+  parent: databaseEndpoint
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'databaseConfig'
+        properties: {
+          privateDnsZoneId: databaseDnsZone.id
+        }
+      }
+    ]
+  }
+}
+
+resource DatabaseDnsZoneNameLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  parent: databaseDnsZone
+  name: '${databaseDnsZoneName}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnetId
+    }
+  }
+}
+
+output sqlServerFullyQualifiedDomainName string = sqlServer.properties.fullyQualifiedDomainName
+output sqlDatabaseName string = sqlDatabase.name
+output sqlDatabaseConnectionString string = sqlDatabaseConnectionString

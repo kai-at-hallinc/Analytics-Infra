@@ -25,7 +25,7 @@ az role assignment create `
 --scope $resourceGroup
 
 # output variables
-echo "AZURE_CLIENT_ID: $applicationRegistrationAppId"
-echo "AZURE_TENANT_ID: $(az account show --query tenantId --output tsv)"
-echo "AZURE_SUBSCRIPTION_ID: $(az account show --query id --output tsv)"
+Write-Output "AZURE_CLIENT_ID: $applicationRegistrationAppId"
+Write-Output "AZURE_TENANT_ID: $(az account show --query tenantId --output tsv)"
+Write-Output "AZURE_SUBSCRIPTION_ID: $(az account show --query id --output tsv)"
 

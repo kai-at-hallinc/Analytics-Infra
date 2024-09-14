@@ -20,22 +20,17 @@ param sqlServerAdministratorLogin string
 param sqlServerAdministratorLoginPassword string
 
 var storageAccountName = 'hallincst${resourceNameSuffix}'
-var storageAccountBlobContainerName = 'data'
+var storageAccountBlobContainerName = 'datalake'
+var storageEndpointName = 'hallinc-storage-endpoint'
+var storageLinkName = 'hallinc-storage-link'
+var databaseEndpointName = 'hallinc-database-endpoint'
+var databaseLinkName = 'hallinc-database-link'
+
 var sqlServerName = 'hallinc-${resourceNameSuffix}'
 var sqlDatabaseName = 'WorldWideImporters'
 
 // Define the connection string to access Azure SQL.
-var sqlDatabaseConnectionString = '''
-  Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;
-  Initial Catalog=${sqlDatabase.name};
-  Persist Security Info=False;
-  User ID=${sqlServerAdministratorLogin};
-  Password=${sqlServerAdministratorLoginPassword};
-  MultipleActiveResultSets=False;
-  Encrypt=True;
-  TrustServerCertificate=False;
-  Connection Timeout=30;
-'''
+
 // set evironment configuration for resources 
 var environmentConfiguration = {
   Test: {
@@ -43,6 +38,10 @@ var environmentConfiguration = {
     properties: {
       isHnsEnabled: true
       allowBlobPublicAccess: true
+      networkAcls: {
+        bypass: 'AzureServices, Logging, Metrics'
+        defaultAction: 'Deny'
+      }
     }
     blobContainers: {
       properties: {
@@ -66,6 +65,10 @@ var environmentConfiguration = {
     storageAccountType: 'Premium_LRS'
     properties: {
       isHnsEnabled: null
+      networkAcls: {
+        bypass: 'AzureServices, Logging, Metrics'
+        defaultAction: 'Deny'
+      }
     }
 
     blobContainers: {
@@ -85,54 +88,52 @@ var environmentConfiguration = {
   }
 }
 
+module databricks_nsg 'modules/databricks_nsg.bicep' = {
+  name: 'databricks_nsg'
+  params: {
+    location: location
+    nsgName: 'databricks-nsg'
+  }
+}
+
+// create a vnet resource with public subnet, private subnets and private link subnets
+module databricks_vnet 'modules/databricks_vnet.bicep' = {
+  name: 'databricks_vnet'
+  params: {
+    location: location
+    nsgId: databricks_nsg.outputs.nsgId
+  }
+}
+
 // create a storage account resource with hiearchical namespace enabled
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: storageAccountName
-  location: location
-  sku: {
-    name: environmentConfiguration[environmentType].storageAccountType
-  }
-  kind: 'StorageV2'
-  properties: environmentConfiguration[environmentType].properties
-
-  resource blobService 'blobServices' = {
-    name: 'default'
-
-    resource storageAccountBlobContainer 'containers' = {
-      name: storageAccountBlobContainerName
-      properties: environmentConfiguration[environmentType].blobContainers.properties
-    }
+module storage 'modules/storage.bicep' = {
+  name: 'storage'
+  params: {
+    storageAccountName: storageAccountName
+    storageAccountBlobContainerName: storageAccountBlobContainerName
+    location: location
+    environmentType: environmentType
+    environmentConfiguration: environmentConfiguration
+    storageEndpointName: storageEndpointName
+    storageLinkName: storageLinkName
+    vnetId: databricks_vnet.outputs.vnetId
+    privateSubnetId: databricks_vnet.outputs.privateSubnetId
   }
 }
 
-resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
-  name: sqlServerName
-  location: location
-  properties: {
-    administratorLogin: sqlServerAdministratorLogin
-    administratorLoginPassword: sqlServerAdministratorLoginPassword
-  }
-}
-
-resource sqlServerFirewallRule 'Microsoft.Sql/servers/firewallRules@2022-05-01-preview' = {
-  parent: sqlServer
-  name: 'AllowAllAzureIps'
-  properties: {
-    endIpAddress: '0.0.0.0'
-    startIpAddress: '0.0.0.0'
-  }
-}
-
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
-  parent: sqlServer
+module sql_database 'modules/database.bicep' = {
   name: sqlDatabaseName
-  location: location
-  sku: environmentConfiguration[environmentType].sqlDatabase.sku
-  properties: environmentConfiguration[environmentType].sqlDatabase.properties
+  params: {
+    location: location
+    environmentType: environmentType
+    environmentConfiguration: environmentConfiguration
+    sqlServerName: sqlServerName
+    sqlDatabaseName: sqlDatabaseName
+    sqlServerAdministratorLogin: sqlServerAdministratorLogin
+    sqlServerAdministratorLoginPassword: sqlServerAdministratorLoginPassword
+    databaseEndpointName: databaseEndpointName
+    databaseLinkName: databaseLinkName
+    vnetId: databricks_vnet.outputs.vnetId
+    privateSubnetId: databricks_vnet.outputs.privateSubnetId
+  }
 }
-
-output storageAccountName string = storageAccount.name
-output storageAccountBlobContainerName string = storageAccount::blobService::storageAccountBlobContainer.name
-output sqlServerFullyQualifiedDomainName string = sqlServer.properties.fullyQualifiedDomainName
-output sqlDatabaseName string = sqlDatabase.name
-output sqlDatabaseConnectionString string = sqlDatabaseConnectionString
