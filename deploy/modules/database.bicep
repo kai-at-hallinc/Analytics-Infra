@@ -69,7 +69,7 @@ resource databaseEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
         properties: {
           privateLinkServiceId: resourceId('Microsoft.Sql/servers', sqlServerName)
           groupIds: [
-            'sqlServerHostname'
+            'sqlServer'
           ]
         }
       }
