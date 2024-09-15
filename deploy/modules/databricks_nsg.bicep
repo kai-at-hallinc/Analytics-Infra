@@ -76,6 +76,20 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
           direction: 'Outbound'
         }
       }
+      {
+        name: 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-keyvault'
+        properties: {
+          description: 'Required for workers communication with Azure Key Vault services.'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '443'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationAddressPrefix: 'AzureKeyVault'
+          access: 'Allow'
+          priority: 104
+          direction: 'Outbound'
+        }
+      }
     ]
   }
 }

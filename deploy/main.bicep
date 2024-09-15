@@ -2,10 +2,6 @@
 param location string = resourceGroup().location
 
 @description('The type of environment (dev or prod.')
-@allowed([
-  'Test'
-  'Production'
-])
 param environmentType string
 
 @description('A unique suffix to add to resource names that need to be globally unique.')
@@ -15,9 +11,29 @@ param resourceNameSuffix string = uniqueString(resourceGroup().id)
 @description('The administrator login username for the SQL server.')
 param sqlServerAdministratorLogin string
 
-@secure()
 @description('The administrator login password for the SQL server.')
+@secure()
 param sqlServerAdministratorLoginPassword string
+
+@description('if to deploy Azure Databricks workspace with Secure Cluster Connectivity')
+param disablePublicIp bool
+
+@description('The name of the Azure Databricks workspace to create.')
+param databricksWorkspaceName string = 'hallinc-${resourceNameSuffix}'
+
+@description('The pricing tier of the Azure Databricks workspace.')
+param databricksPricingTier string
+
+@description('The environment configuration settings.')
+param environmentConfiguration object
+
+@description('role assignments for user managed identity')
+param managedIdentityRoleDefinitionIds array
+
+@description('role assignments for databricks connector')
+param databricksConnectorRoleDefinitionIds array
+
+param keyVaultName string = 'hallinc-keyvault-${resourceNameSuffix}'
 
 var storageAccountName = 'hallincst${resourceNameSuffix}'
 var storageAccountBlobContainerName = 'datalake'
@@ -29,65 +45,7 @@ var databaseLinkName = 'hallinc-database-link'
 var sqlServerName = 'hallinc-${resourceNameSuffix}'
 var sqlDatabaseName = 'WorldWideImporters'
 
-// Define the connection string to access Azure SQL.
-
-// set evironment configuration for resources 
-var environmentConfiguration = {
-  Test: {
-    storageAccountType: 'Standard_LRS'
-    properties: {
-      isHnsEnabled: true
-      allowBlobPublicAccess: true
-      networkAcls: {
-        bypass: 'AzureServices, Logging, Metrics'
-        defaultAction: 'Deny'
-      }
-    }
-    blobContainers: {
-      properties: {
-        publicAccess: 'None'
-      }
-    }
-    sqlDatabase: {
-      properties: {
-        collation: 'SQL_Latin1_General_CP1_CI_AS'
-        autoPauseDelay: '30'
-        freeLimitExhaustionBehavior: 'Pause'
-        useFreeLimit: true
-      }
-      sku: {
-        name: 'Basic'
-        tier: 'basic'
-      }
-    }
-  }
-  Production: {
-    storageAccountType: 'Premium_LRS'
-    properties: {
-      isHnsEnabled: null
-      networkAcls: {
-        bypass: 'AzureServices, Logging, Metrics'
-        defaultAction: 'Deny'
-      }
-    }
-
-    blobContainers: {
-      properties: {
-        publicAccess: 'None'
-      }
-    }
-    sqlDatabase: {
-      properties: {
-        collation: 'SQL_Latin1_General_CP1_CI_AS'
-      }
-      sku: {
-        name: 'Standard'
-        tier: 'Standard'
-      }
-    }
-  }
-}
-
+//create a network security group resource for databricks communications
 module databricks_nsg 'modules/databricks_nsg.bicep' = {
   name: 'databricks_nsg'
   params: {
@@ -96,7 +54,7 @@ module databricks_nsg 'modules/databricks_nsg.bicep' = {
   }
 }
 
-// create a vnet resource with public subnet, private subnets and private link subnets
+//create a vnet resource with public subnet, private subnets and private link subnets
 module databricks_vnet 'modules/databricks_vnet.bicep' = {
   name: 'databricks_vnet'
   params: {
@@ -105,7 +63,7 @@ module databricks_vnet 'modules/databricks_vnet.bicep' = {
   }
 }
 
-// create a storage account resource with hiearchical namespace enabled
+//create a storage account resource with hiearchical namespace enabled
 module storage 'modules/storage.bicep' = {
   name: 'storage'
   params: {
@@ -121,6 +79,7 @@ module storage 'modules/storage.bicep' = {
   }
 }
 
+//create a sql database resource with private endpoint
 module sql_database 'modules/database.bicep' = {
   name: sqlDatabaseName
   params: {
@@ -135,5 +94,32 @@ module sql_database 'modules/database.bicep' = {
     databaseLinkName: databaseLinkName
     vnetId: databricks_vnet.outputs.vnetId
     privateSubnetId: databricks_vnet.outputs.privateSubnetId
+  }
+}
+
+//create a databricks workspace with secure cluster connectivity and vnet injection
+module databricks_workspace 'modules/databricks-workspace.bicep' = {
+  name: 'databricks_workspace'
+  params: {
+    location: location
+    disablePublicIp: disablePublicIp
+    workspaceName: databricksWorkspaceName
+    pricingTier: databricksPricingTier
+    vnetId: databricks_vnet.outputs.vnetId
+    publicSubnetName: databricks_vnet.outputs.publicSubnetName
+    privateSubnetName: databricks_vnet.outputs.privateSubnetName
+    managedIdentityRoleDefinitionIds: managedIdentityRoleDefinitionIds
+    databricksConnectorRoleDefinitionIds: databricksConnectorRoleDefinitionIds
+  }
+}
+
+//create a key vault
+module keyvault 'modules/keyvault.bicep' = {
+  name: 'keyvault'
+  params: {
+    location: location
+    vnetId: databricks_vnet.outputs.vnetId
+    privateSubnetId: databricks_vnet.outputs.privateSubnetId
+    keyVaultName: keyVaultName
   }
 }

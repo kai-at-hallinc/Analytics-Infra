@@ -96,3 +96,9 @@ output privateSubnetId string = vnet.properties.subnets[1].id
 
 @description('The complete resourceId for the privatelink subnet.')
 output privateLinkSubnetId string = vnet.properties.subnets[2].id
+
+@description('name of the public subnet')
+output publicSubnetName string = vnet.properties.subnets[0].name
+
+@description('name of the private subnet')
+output privateSubnetName string = vnet.properties.subnets[1].name
