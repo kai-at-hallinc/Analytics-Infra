@@ -19,7 +19,7 @@ param sqlServerAdministratorLoginPassword string
 param disablePublicIp bool
 
 @description('The name of the Azure Databricks workspace to create.')
-param databricksWorkspaceName string = 'hallinc-${resourceNameSuffix}'
+param databricksWorkspaceName string = 'hallinc-databricks-${resourceNameSuffix}'
 
 @description('The pricing tier of the Azure Databricks workspace.')
 param databricksPricingTier string
@@ -37,11 +37,8 @@ param keyVaultName string = 'hallinc-keyvault-${resourceNameSuffix}'
 
 var storageAccountName = 'hallincst${resourceNameSuffix}'
 var storageAccountBlobContainerName = 'datalake'
-var storageEndpointName = 'hallinc-storage-endpoint'
-var storageLinkName = 'hallinc-storage-link'
 var databaseEndpointName = 'hallinc-database-endpoint'
 var databaseLinkName = 'hallinc-database-link'
-
 var sqlServerName = 'hallinc-${resourceNameSuffix}'
 var sqlDatabaseName = 'WorldWideImporters'
 
@@ -72,8 +69,6 @@ module storage 'modules/storage.bicep' = {
     location: location
     environmentType: environmentType
     environmentConfiguration: environmentConfiguration
-    storageEndpointName: storageEndpointName
-    storageLinkName: storageLinkName
     vnetId: databricks_vnet.outputs.vnetId
     privateSubnetId: databricks_vnet.outputs.privateSubnetId
   }
@@ -118,8 +113,6 @@ module keyvault 'modules/keyvault.bicep' = {
   name: 'keyvault'
   params: {
     location: location
-    vnetId: databricks_vnet.outputs.vnetId
-    privateSubnetId: databricks_vnet.outputs.privateSubnetId
     keyVaultName: keyVaultName
   }
 }

@@ -3,11 +3,11 @@ param storageAccountBlobContainerName string
 param location string
 param environmentType string
 param environmentConfiguration object
-param storageEndpointName string
-param storageLinkName string
 param privateSubnetId string
 param vnetId string
 
+var storageEndpointName = 'hallinc-storage-endpoint'
+var storageLinkName = 'hallinc-storage-link'
 var storageDnsZoneName = environment().suffixes.storage
 var storageDnsGroupName = 'hallinc-storage-dns-zone'
 
@@ -52,7 +52,7 @@ resource storageEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
   }
 }
 
-resource storageDnsZone 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+resource storageDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: storageDnsZoneName
   location: 'global'
   dependsOn: [
