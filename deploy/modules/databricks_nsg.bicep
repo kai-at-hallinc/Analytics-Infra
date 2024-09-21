@@ -90,6 +90,34 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
           direction: 'Outbound'
         }
       }
+      {
+        name: 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-eventhub'
+        properties: {
+          description: 'Required for worker communication with Azure Eventhub services.'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '9093'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationAddressPrefix: 'EventHub'
+          access: 'Allow'
+          priority: 104
+          direction: 'Outbound'
+        }
+      }
+      {
+        name: 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-azuremonitor'
+        properties: {
+          description: 'Required for worker communication with Azure Monitor services.'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '443'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationAddressPrefix: 'AzureMonitor'
+          access: 'Allow'
+          priority: 105
+          direction: 'Outbound'
+        }
+      }
     ]
   }
 }
