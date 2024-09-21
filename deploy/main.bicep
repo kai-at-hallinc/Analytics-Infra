@@ -41,7 +41,7 @@ var storageAccountBlobContainerName = 'datalake'
 var databaseEndpointName = 'hallinc-database-endpoint'
 var databaseLinkName = 'hallinc-database-link'
 var sqlServerName = 'hallinc-${resourceNameSuffix}'
-var sqlDatabaseName = 'WorldWideImporters'
+var sqlDatabaseName = 'HallincDatabase'
 var deploy_rg = false
 
 //create a resource group if deploy_rg is true
