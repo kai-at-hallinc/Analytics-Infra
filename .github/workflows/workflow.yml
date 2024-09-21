@@ -26,6 +26,8 @@ jobs:
       environmentType: Test
       resourceGroupName: hallinc-analytics-sandbox
       sqlServerAdministratorLogin: sqlServerAdmin
+      parameterFile: './deploy/main.parameters.sandbox.bicepparam'
+
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
