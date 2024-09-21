@@ -100,7 +100,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
           sourceAddressPrefix: 'VirtualNetwork'
           destinationAddressPrefix: 'EventHub'
           access: 'Allow'
-          priority: 104
+          priority: 105
           direction: 'Outbound'
         }
       }
@@ -114,7 +114,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
           sourceAddressPrefix: 'VirtualNetwork'
           destinationAddressPrefix: 'AzureMonitor'
           access: 'Allow'
-          priority: 105
+          priority: 106
           direction: 'Outbound'
         }
       }
