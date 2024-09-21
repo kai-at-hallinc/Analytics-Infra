@@ -42,8 +42,11 @@ var databaseEndpointName = 'hallinc-database-endpoint'
 var databaseLinkName = 'hallinc-database-link'
 var sqlServerName = 'hallinc-${resourceNameSuffix}'
 var sqlDatabaseName = 'WorldWideImporters'
+var deploy_rg = false
 
-module resourceGroups 'modules/resourceGroups.bicep' = {
+//create a resource group if deploy_rg is true
+
+module resourceGroups 'modules/resourceGroups.bicep' = if (deploy_rg) {
   name: 'ResourceGroupDeployment'
   scope: subscription()
   params: {
@@ -116,7 +119,8 @@ module databricks_workspace 'modules/databricks-workspace.bicep' = {
     privateSubnetName: databricks_vnet.outputs.privateSubnetName
     managedIdentityRoleDefinitionIds: managedIdentityRoleDefinitionIds
     databricksConnectorRoleDefinitionIds: databricksConnectorRoleDefinitionIds
-    managedResourceGroupName: resourceGroups.outputs.managedResourceGroupName
+    environmentType: environmentType
+    resourceNameSuffix: resourceNameSuffix
   }
 }
 
