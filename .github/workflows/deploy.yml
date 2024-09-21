@@ -59,6 +59,7 @@ jobs:
             resourceGroupName: ${{ inputs.resourceGroupName }}
             template: ./deploy/main.bicep
             parameters: >
+              deploy/params.sandbox.json
               environmentType=${{ inputs.environmentType }}
               sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }}
               sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }}
@@ -91,6 +92,7 @@ jobs:
             resourceGroupName: ${{ inputs.resourceGroupName }}
             template: ./deploy/main.bicep
             parameters: >
+                deploy/params.sandbox.json
                 environmentType=${{ inputs.environmentType }}
                 sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }}
                 sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }}
