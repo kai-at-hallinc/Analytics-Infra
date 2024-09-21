@@ -114,5 +114,7 @@ module keyvault 'modules/keyvault.bicep' = {
   params: {
     location: location
     keyVaultName: keyVaultName
+    vnetId: databricks_vnet.outputs.vnetId
+    privateSubnetId: databricks_vnet.outputs.privateSubnetId
   }
 }

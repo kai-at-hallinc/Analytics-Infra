@@ -104,5 +104,3 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-prev
     keyVaultAdministratorRoleDefinition
   ]
 }
-
-//TODO: create private endpoint for key vault
