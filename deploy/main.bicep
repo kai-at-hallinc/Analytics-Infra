@@ -33,7 +33,7 @@ param managedIdentityRoleDefinitionIds array
 @description('role assignments for databricks connector')
 param databricksConnectorRoleDefinitionIds array
 
-param keyVaultName string = 'hallinc-keyvault-${resourceNameSuffix}'
+param keyVaultName string = 'hallinckeyvault${resourceNameSuffix}'
 
 var storageAccountName = 'hallincst${resourceNameSuffix}'
 var storageAccountBlobContainerName = 'datalake'
