@@ -37,6 +37,7 @@
             "sqlDatabase": {
               "properties": {
                 "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "sampleName": "WideWorldImporters",
                 "autoPauseDelay": "30"
               },
               "sku": {
