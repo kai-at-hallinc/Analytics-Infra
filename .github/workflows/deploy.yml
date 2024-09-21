@@ -43,11 +43,11 @@ jobs:
             deploymentName: ${{ github.run_number }}
             resourceGroupName: ${{ inputs.resourceGroupName }}
             template: ./deploy/main.bicep
-            parameters: |
+            parameters: >
              ./deploy/main.parameters.sandbox.bicepparam 
-              environmentType=${{ inputs.environmentType }} -overriden
-              sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }} -overriden
-              sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }} -overriden
+              environmentType=${{ inputs.environmentType }}
+              sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }}
+              sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }}
             deploymentMode: Validate
             scope: 'resourcegroup'
 
