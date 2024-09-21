@@ -17,7 +17,7 @@ on:
             parameterFile:
                 required: true
                 type: string
-                description: './deploy/main.parameters.sandbox.bicepparam'
+                default: './deploy/main.parameters.sandbox.bicepparam'
 
         secrets:
             AZURE_CLIENT_ID:
@@ -47,7 +47,8 @@ jobs:
             deploymentName: ${{ github.run_number }}
             resourceGroupName: ${{ inputs.resourceGroupName }}
             template: ./deploy/main.bicep
-            parameters: > 
+            parameters: >
+              ${{ inputs.parameterFile }}
               environmentType=${{ inputs.environmentType }}
               sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }}
               sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }}

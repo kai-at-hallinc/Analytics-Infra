@@ -4,7 +4,7 @@ using './main.bicep'
   'Test'
   'Production'
 ])
-param environmentType = 'Test'
+param environmentType = ''
 param sqlServerAdministratorLogin = ''
 param sqlServerAdministratorLoginPassword = ''
 param disablePublicIp = true
