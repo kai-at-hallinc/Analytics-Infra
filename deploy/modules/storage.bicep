@@ -8,7 +8,7 @@ param vnetId string
 
 var storageEndpointName = 'hallinc-storage-endpoint'
 var storageLinkName = 'hallinc-storage-link'
-var storageDnsZoneName = 'privatelink.${environment().suffixes.storage}'
+var storageDnsZoneName = 'privatelink${environment().suffixes.storage}'
 var storageDnsGroupName = 'hallinc-storage-dns-zone'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {

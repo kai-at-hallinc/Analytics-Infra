@@ -49,7 +49,7 @@ resource workspace 'Microsoft.Databricks/workspaces@2024-05-01' = {
     name: pricingTier
   }
   properties: {
-    managedResourceGroupId: resourceId(subscription().subscriptionId, 'resourceGroups', trimmedMRGName)
+    managedResourceGroupId: resourceId('Microsoft.Resources/resourceGroups', trimmedMRGName)
     parameters: {
       customVirtualNetworkId: {
         value: vnetId
@@ -73,7 +73,6 @@ resource databricksStorageConnector 'Microsoft.Databricks/accessConnectors@2024-
   tags: {}
   identity: {
     type: databricksConnectorType
-    userAssignedIdentities: {}
   }
   properties: {}
 }
