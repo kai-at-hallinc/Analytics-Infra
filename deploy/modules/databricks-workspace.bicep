@@ -19,7 +19,7 @@ param managedIdentityRoleDefinitionIds array
 @description('The role definition Ids of the databricks connector.see https://docs.microsoft.com/azure/role-based-access-control/built-in-roles.')
 param databricksConnectorRoleDefinitionIds array
 
-var managedResourceGroupName = 'databricksrg-${workspaceName}${uniqueString(workspaceName, resourceGroup().id)}'
+var managedResourceGroupName = '${workspaceName}-rg-${uniqueString(workspaceName, resourceGroup().id)}'
 var trimmedMRGName = substring(managedResourceGroupName, 0, min(length(managedResourceGroupName), 90))
 var databricksConnectorName = 'databricks-storage-connector-${uniqueString(workspaceName, resourceGroup().id)}'
 var databricksConnectorType = 'SystemAssigned'

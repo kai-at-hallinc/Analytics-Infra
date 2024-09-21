@@ -19,7 +19,7 @@ param sqlServerAdministratorLoginPassword string
 param disablePublicIp bool
 
 @description('The name of the Azure Databricks workspace to create.')
-param databricksWorkspaceName string = 'hallinc-databricks-${resourceNameSuffix}'
+param databricksWorkspaceName string = 'hallinc-${resourceNameSuffix}'
 
 @description('The pricing tier of the Azure Databricks workspace.')
 param databricksPricingTier string
