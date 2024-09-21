@@ -14,10 +14,6 @@ on:
             sqlServerAdministratorLogin:
                 required: true
                 type: string
-            parameterFile:
-                required: true
-                type: string
-                default: './deploy/main.parameters.sandbox.bicepparam'
 
         secrets:
             AZURE_CLIENT_ID:
@@ -40,12 +36,6 @@ jobs:
             tenant-id: ${{ secrets.AZURE_TENANT_ID }}
             subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         
-        - name: Read parameter file
-          id: read-params
-          run: |
-              PARAMETERS=$(cat ${{ inputs.parameterFile }})
-              echo "PARAMETERS=$PARAMETERS" >> $GITHUB_ENV
-
         - if: inputs.environmentType != 'Production'
           uses: azure/arm-deploy@v1
           name: run pre-flight validation
@@ -53,11 +43,11 @@ jobs:
             deploymentName: ${{ github.run_number }}
             resourceGroupName: ${{ inputs.resourceGroupName }}
             template: ./deploy/main.bicep
-            parameters: >
-              ${{ env.PARAMETERS }}
-              environmentType=${{ inputs.environmentType }}
-              sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }}
-              sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }}
+            parameters: |
+             ./deploy/main.parameters.sandbox.bicepparam 
+              environmentType=${{ inputs.environmentType }} -overriden
+              sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }} -overriden
+              sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }} -overriden
             deploymentMode: Validate
             scope: 'resourcegroup'
 
