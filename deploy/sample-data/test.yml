@@ -1,0 +1,65 @@
+name: deployment_test
+on:
+    workflow_call
+
+jobs:
+  deploy-database:
+        needs: deploy
+        environment: ${{ inputs.environmentType }}
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v3
+        - uses: azure/login@v1
+          name: login to Azure
+          with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        
+        - uses: azure/sql-action@v1.2
+          name: deploy DACPAC to database
+          with:
+            server-name: ${{ needs.deploy.outputs.sqlServerFullyQualifiedDomainName }}
+            connection-string: ${{ format('Server={0};Initial Catalog={1};User Id={2};Password={3};', needs.deploy.outputs.sqlServerFullyQualifiedDomainName, needs.deploy.outputs.sqlDatabaseName, inputs.sqlServerAdministratorLogin, secrets.sqlServerAdministratorLoginPassword) }}
+            dacpac-package: ./Database.dacpac
+    
+  seed-storage-account:
+      needs: deploy
+      environment: ${{ inputs.environmentType }}
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        name: Sign in to Azure
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+      - if: inputs.environmentType != 'Production'
+        uses: azure/CLI@v1
+        name: Upload sample file to storage
+        with:
+          inlineScript: |
+              az storage blob upload-batch \
+                  --account-name ${{ needs.deploy.outputs.storageAccountName }} \
+                  --destination ${{ needs.deploy.outputs.storageAccountBlobContainerName }} \
+                  --source 'deploy/sample-data/test'
+
+  smoke-test:
+      runs-on: ubuntu-latest
+      needs: deploy
+      steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        name: sign in to Azure
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Run smoke tests
+        run: |
+          $container = New-PesterContainer -Path 'deploy/Storage.Tests.ps1' -Data @{ storageAccountName = '${{needs.deploy.outputs.storageAccountName}}'; resourceGroupName = '${{inputs.resourceGroupName}}'}
+          Invoke-Pester -Container $container -CI
+        shell: pwsh
+        continue-on-error: true
