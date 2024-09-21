@@ -13,7 +13,7 @@ var keyvaultManagedIdentityName = 'keyvaultManagedIdentity'
 var roleAssignmentName = guid(keyVault.id, managedIdentity.id, keyVaultAdministratorRoleDefinition.id)
 var keyvaultEndpointName = 'hallinc-keyvault-endpoint'
 var keyvaultLinkName = 'hallinc-keyvault-link'
-var keyvaultDnsZoneName = 'privatelink.${environment().suffixes.keyvaultDns}'
+var keyvaultDnsZoneName = 'privatelink${environment().suffixes.keyvaultDns}'
 var keyvaultDnsGroupName = 'hallinc-keyvault-dns-zone-group'
 
 resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
