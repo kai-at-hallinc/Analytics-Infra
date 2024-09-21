@@ -1,0 +1,89 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "environmentType": {
+        "value": ""
+      },
+      "sqlServerAdministratorLogin": {
+        "value": ""
+      },
+      "sqlServerAdministratorLoginPassword": {
+        "value": ""
+      },
+      "disablePublicIp": {
+        "value": true
+      },
+      "databricksPricingTier": {
+        "value": "premium"
+      },
+      "environmentConfiguration": {
+        "value": {
+          "Test": {
+            "storageAccountType": "Standard_LRS",
+            "properties": {
+              "isHnsEnabled": true,
+              "allowBlobPublicAccess": true,
+              "networkAcls": {
+                "bypass": "AzureServices, Logging, Metrics",
+                "defaultAction": "Deny"
+              }
+            },
+            "blobContainers": {
+              "properties": {
+                "publicAccess": "None"
+              }
+            },
+            "sqlDatabase": {
+              "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "autoPauseDelay": "30",
+                "freeLimitExhaustionBehavior": "Pause",
+                "useFreeLimit": true
+              },
+              "sku": {
+                "name": "Basic",
+                "tier": "basic"
+              }
+            }
+          },
+          "Production": {
+            "storageAccountType": "Premium_LRS",
+            "properties": {
+              "isHnsEnabled": null,
+              "networkAcls": {
+                "bypass": "AzureServices, Logging, Metrics",
+                "defaultAction": "Deny"
+              }
+            },
+            "blobContainers": {
+              "properties": {
+                "publicAccess": "None"
+              }
+            },
+            "sqlDatabase": {
+              "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS"
+              },
+              "sku": {
+                "name": "Standard",
+                "tier": "Standard"
+              }
+            }
+          }
+        }
+      },
+      "managedIdentityRoleDefinitionIds": {
+        "value": [
+          "b24988ac-6180-42a0-ab88-20f7382dd24c",
+          "4633458b-17de-408a-b874-0445c86b69e6"
+        ]
+      },
+      "databricksConnectorRoleDefinitionIds": {
+        "value": [
+          "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
+        ]
+      }
+    }
+  }
+  
