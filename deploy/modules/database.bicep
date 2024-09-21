@@ -30,7 +30,7 @@ var sqlDatabaseConnectionString = '''
   Connection Timeout=30;
 '''
 
-var databaseDnsZoneName = environment().suffixes.storage
+var databaseDnsZoneName = 'privatelink.${environment().suffixes.sqlServerHostname}'
 var databaseDnsGroupName = 'hallinc-storage-dns-zone'
 
 resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
