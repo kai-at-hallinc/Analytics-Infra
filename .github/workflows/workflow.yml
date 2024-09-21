@@ -44,6 +44,7 @@ jobs:
           environmentType: Production
           resourceGroupName: hallinc-analytics-production
           sqlServerAdministratorLogin: sqlServerAdmin
+          parameterFile: './deploy/main.parameters.sandbox.bicepparam'
       secrets:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PRODUCTION }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
