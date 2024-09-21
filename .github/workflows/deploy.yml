@@ -14,6 +14,10 @@ on:
             sqlServerAdministratorLogin:
                 required: true
                 type: string
+            parameterFile:
+                required: true
+                type: string
+                description: './deploy/main.parameters.sandbox.bicepparam'
 
         secrets:
             AZURE_CLIENT_ID:
