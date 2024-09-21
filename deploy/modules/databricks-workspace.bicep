@@ -16,11 +16,15 @@ param privateSubnetName string = 'private-subnet'
 @description('The role definition Ids of the managed identity.see https://docs.microsoft.com/azure/role-based-access-control/built-in-roles.')
 param managedIdentityRoleDefinitionIds array
 
-@description('The role definition Ids of the databricks connector.see https://docs.microsoft.com/azure/role-based-access-control/built-in-roles.')
+@description('The role definition Ids of the databricks connector.https://docs.microsoft.com/azure/role-based-access-control/built-in-roles.')
 param databricksConnectorRoleDefinitionIds array
 
-var managedResourceGroupName = '${workspaceName}-rg-${uniqueString(workspaceName, resourceGroup().id)}'
-var trimmedMRGName = substring(managedResourceGroupName, 0, min(length(managedResourceGroupName), 90))
+@description('The name of the managed resource group.')
+param managedResourceGroupName string
+
+@description('An optional description to apply to each role assignment, such as the reason this managed identity needs to be granted the role.')
+param roleAssignmentDescription string = 'this role is needed for machine interactions of the databricks workspace'
+
 var databricksConnectorName = 'databricks-storage-connector-${uniqueString(workspaceName, resourceGroup().id)}'
 var databricksConnectorType = 'SystemAssigned'
 var userManagedIdentityName = 'databricks-user-managed-identity-${uniqueString(workspaceName, resourceGroup().id)}'
@@ -39,9 +43,6 @@ var databricksConnectorRoleAssignments = [
   }
 ]
 
-@description('An optional description to apply to each role assignment, such as the reason this managed identity needs to be granted the role.')
-param roleAssignmentDescription string = 'this role is needed for machine interactions of the databricks workspace'
-
 resource workspace 'Microsoft.Databricks/workspaces@2024-05-01' = {
   name: workspaceName
   location: location
@@ -49,7 +50,6 @@ resource workspace 'Microsoft.Databricks/workspaces@2024-05-01' = {
     name: pricingTier
   }
   properties: {
-    managedResourceGroupId: resourceId('Microsoft.Resources/resourceGroups', trimmedMRGName)
     parameters: {
       customVirtualNetworkId: {
         value: vnetId
@@ -64,7 +64,13 @@ resource workspace 'Microsoft.Databricks/workspaces@2024-05-01' = {
         value: disablePublicIp
       }
     }
+    managedResourceGroupId: managedResourceGroup.id
   }
+}
+
+resource managedResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+  scope: subscription()
+  name: managedResourceGroupName
 }
 
 resource databricksStorageConnector 'Microsoft.Databricks/accessConnectors@2024-05-01' = {
@@ -114,5 +120,9 @@ resource databricksConnectorRoleAssignment 'Microsoft.Authorization/roleAssignme
     }
   }
 ]
+
+output workspaceId string = workspace.id
+output managedResourceGroupId string = managedResourceGroup.id
+output databricksStorageConnectorId string = databricksStorageConnector.id
 
 // TODO create key vault role assignment for databricsk managed identity

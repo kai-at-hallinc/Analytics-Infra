@@ -43,6 +43,16 @@ var databaseLinkName = 'hallinc-database-link'
 var sqlServerName = 'hallinc-${resourceNameSuffix}'
 var sqlDatabaseName = 'WorldWideImporters'
 
+module resourceGroups 'modules/resourceGroups.bicep' = {
+  name: 'ResourceGroupDeployment'
+  scope: subscription()
+  params: {
+    location: location
+    environmentType: environmentType
+    resourceNameSuffix: resourceNameSuffix
+  }
+}
+
 //create a network security group resource for databricks communications
 module databricks_nsg 'modules/databricks_nsg.bicep' = {
   name: 'databricks_nsg'
@@ -106,6 +116,7 @@ module databricks_workspace 'modules/databricks-workspace.bicep' = {
     privateSubnetName: databricks_vnet.outputs.privateSubnetName
     managedIdentityRoleDefinitionIds: managedIdentityRoleDefinitionIds
     databricksConnectorRoleDefinitionIds: databricksConnectorRoleDefinitionIds
+    managedResourceGroupName: resourceGroups.outputs.managedResourceGroupName
   }
 }
 
