@@ -76,6 +76,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         name: privateLinkSubnetName
         properties: {
           addressPrefix: privateLinkSubnetCidr
+          privateEndpointNetworkPolicies: 'Disabled'
           networkSecurityGroup: {
             id: nsgId
           }
@@ -91,14 +92,17 @@ output vnetId string = vnet.id
 @description('The complete resourceId for the public subnet.')
 output publicSubnetId string = vnet.properties.subnets[0].id
 
+@description('name of the public subnet')
+output publicSubnetName string = vnet.properties.subnets[0].name
+
 @description('The complete resourceId for the private subnet.')
 output privateSubnetId string = vnet.properties.subnets[1].id
+
+@description('name of the private subnet')
+output privateSubnetName string = vnet.properties.subnets[1].name
 
 @description('The complete resourceId for the privatelink subnet.')
 output privateLinkSubnetId string = vnet.properties.subnets[2].id
 
-@description('name of the public subnet')
-output publicSubnetName string = vnet.properties.subnets[0].name
-
-@description('name of the private subnet')
-output privateSubnetName string = vnet.properties.subnets[1].name
+@description('name of the privatelink subnet')
+output privateLinkSubnetName string = vnet.properties.subnets[2].name

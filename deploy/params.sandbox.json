@@ -42,8 +42,8 @@
                 "useFreeLimit": true
               },
               "sku": {
-                "name": "Basic",
-                "tier": "basic"
+                "name": "Free",
+                "tier": "Free"
               }
             }
           },

@@ -15,7 +15,7 @@ param environmentConfiguration object
 param environmentType string
 param databaseEndpointName string
 param databaseLinkName string
-param privateSubnetId string
+param privateLinkSubnetId string
 param vnetId string
 
 var sqlDatabaseConnectionString = '''
@@ -67,7 +67,7 @@ resource databaseEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
       {
         name: databaseLinkName
         properties: {
-          privateLinkServiceId: resourceId('Microsoft.Sql/servers', sqlServerName)
+          privateLinkServiceId: sqlServer.id
           groupIds: [
             'sqlServer'
           ]
@@ -75,7 +75,7 @@ resource databaseEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
       }
     ]
     subnet: {
-      id: privateSubnetId
+      id: privateLinkSubnetId
     }
   }
 }

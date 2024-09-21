@@ -3,7 +3,7 @@ param storageAccountBlobContainerName string
 param location string
 param environmentType string
 param environmentConfiguration object
-param privateSubnetId string
+param privateLinkSubnetId string
 param vnetId string
 
 var storageEndpointName = 'hallinc-storage-endpoint'
@@ -38,16 +38,15 @@ resource storageEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
       {
         name: storageLinkName
         properties: {
-          privateLinkServiceId: resourceId('Microsoft.Storage/storageAccounts', storageAccountName)
+          privateLinkServiceId: storageAccount.id
           groupIds: [
-            'blob'
             'dfs'
           ]
         }
       }
     ]
     subnet: {
-      id: privateSubnetId
+      id: privateLinkSubnetId
     }
   }
 }

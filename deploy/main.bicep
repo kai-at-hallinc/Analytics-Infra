@@ -70,7 +70,7 @@ module storage 'modules/storage.bicep' = {
     environmentType: environmentType
     environmentConfiguration: environmentConfiguration
     vnetId: databricks_vnet.outputs.vnetId
-    privateSubnetId: databricks_vnet.outputs.privateSubnetId
+    privateLinkSubnetId: databricks_vnet.outputs.privateLinkSubnetId
   }
 }
 
@@ -88,7 +88,7 @@ module sql_database 'modules/database.bicep' = {
     databaseEndpointName: databaseEndpointName
     databaseLinkName: databaseLinkName
     vnetId: databricks_vnet.outputs.vnetId
-    privateSubnetId: databricks_vnet.outputs.privateSubnetId
+    privateLinkSubnetId: databricks_vnet.outputs.privateLinkSubnetId
   }
 }
 
@@ -110,11 +110,11 @@ module databricks_workspace 'modules/databricks-workspace.bicep' = {
 
 //create a key vault
 module keyvault 'modules/keyvault.bicep' = {
-  name: 'keyvault'
+  name: keyVaultName
   params: {
     location: location
     keyVaultName: keyVaultName
     vnetId: databricks_vnet.outputs.vnetId
-    privateSubnetId: databricks_vnet.outputs.privateSubnetId
+    privateLinkSubnetId: databricks_vnet.outputs.privateLinkSubnetId
   }
 }

@@ -1,6 +1,6 @@
 param location string
 param keyVaultName string
-param privateSubnetId string
+param privateLinkSubnetId string
 param vnetId string
 
 @description('Specifies the SKU to use for the key vault.')
@@ -42,7 +42,7 @@ resource keyvaultEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
       }
     ]
     subnet: {
-      id: privateSubnetId
+      id: privateLinkSubnetId
     }
   }
 }
