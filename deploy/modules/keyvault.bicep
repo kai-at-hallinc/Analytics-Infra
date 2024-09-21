@@ -36,7 +36,7 @@ resource keyvaultEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
         properties: {
           privateLinkServiceId: resourceId('Microsoft.KeyVault/vaults', keyVaultName)
           groupIds: [
-            'vaults'
+            'vault'
           ]
         }
       }
