@@ -11,7 +11,7 @@ param privateSubnetName string = 'private-subnet'
 param publicSubnetName string = 'public-subnet'
 
 @description('The name of the privatelink subnet to create.')
-param privateLinkSubnetName string = 'public-subnet'
+param privateLinkSubnetName string = 'private-link-subnet'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
