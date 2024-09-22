@@ -1,5 +1,4 @@
 param location string
-param resourceNameSuffix string
 
 @description('The name of the storage account')
 param storageAccountName string
@@ -23,10 +22,17 @@ param trustedServiceBypassEnabled bool
 @secure()
 param tenantId string
 
-var managedResourceGroupName = 'synapse-rg-${resourceNameSuffix}'
-var synapseWorkspaceName = 'hallinc-synapse-${resourceNameSuffix}'
-var synapseFilesystemName = 'synapse-data'
-var workspaceAdminObjectId = '6852929f-c685-4cac-b68b-774f8a862016'
+@description('The name of the managed resource group.')
+param managedResourceGroupName string
+
+@description('The name of the synapse workspace.')
+param synapseWorkspaceName string
+
+@description('The name of the synapse filesystem.')
+param synapseFilesystemName string
+
+@description('The object id of the workspace admin.')
+param workspaceAdminObjectId string
 
 // synapse
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {

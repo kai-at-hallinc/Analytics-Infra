@@ -118,6 +118,20 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
           direction: 'Outbound'
         }
       }
+      {
+        name: 'Microsoft.Databricks-workspaces_UseOnly_synapse-to-databricks-worker'
+        properties: {
+          description: 'Required for Azure Synapse Analytics to enter subnets'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '*'
+          sourceAddressPrefix: 'Synapse'
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 108
+          direction: 'Inbound'
+        }
+      }
     ]
   }
 }

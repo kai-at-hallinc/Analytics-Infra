@@ -18,9 +18,6 @@ param sqlServerAdministratorLoginPassword string
 @description('if to deploy Azure Databricks workspace with Secure Cluster Connectivity')
 param disablePublicIp bool
 
-@description('The name of the Azure Databricks workspace to create.')
-param databricksWorkspaceName string = 'hallinc-${resourceNameSuffix}'
-
 @description('The pricing tier of the Azure Databricks workspace.')
 param databricksPricingTier string
 
@@ -32,9 +29,6 @@ param managedIdentityRoleDefinitionIds array
 
 @description('role assignments for databricks connector')
 param databricksConnectorRoleDefinitionIds array
-
-@maxLength(24)
-param keyVaultName string = 'hallinckv${resourceNameSuffix}'
 
 @description('create a managed resource groups before hand or not')
 param deploy_managed_rg bool
@@ -51,12 +45,18 @@ param trustedServiceBypass bool
 @secure()
 param tenantId string
 
-var storageAccountName = 'hallincst${resourceNameSuffix}'
+var storageAccountName = 'hallinc-store-${resourceNameSuffix}'
 var storageAccountBlobContainerName = 'datalake'
 var databaseEndpointName = 'hallinc-database-endpoint'
 var databaseLinkName = 'hallinc-database-link'
-var sqlServerName = 'hallinc-${resourceNameSuffix}'
-var sqlDatabaseName = 'HallincDatabase'
+var sqlServerName = 'hallinc-sql-${resourceNameSuffix}'
+var sqlDatabaseName = 'hallinc-database'
+var databricksWorkspaceName = 'hallinc-databricks-${resourceNameSuffix}'
+var keyVaultName = 'hallinc-kv-${resourceNameSuffix}'
+var managedResourceGroupName = 'synapse-rg-${resourceNameSuffix}'
+var synapseWorkspaceName = 'hallinc-synapse-${resourceNameSuffix}'
+var synapseFilesystemName = 'synapse-data'
+var workspaceAdminObjectId = '6852929f-c685-4cac-b68b-774f8a862016'
 
 //managed resource group deployment
 module resourceGroups 'modules/resourceGroups.bicep' = if (deploy_managed_rg) {
@@ -153,7 +153,6 @@ module synapse 'modules/synapse.bicep' = {
   name: 'synapse'
   params: {
     location: location
-    resourceNameSuffix: resourceNameSuffix
     storageAccountName: storageAccountName
     synapseManagedVirtualNetwork: synapseManagedVirtualNetwork
     synapsePublicNetworkAccess: synapsePublicNetworkAccess
@@ -161,5 +160,9 @@ module synapse 'modules/synapse.bicep' = {
     synapseSqlAdministratorPassword: sqlServerAdministratorLoginPassword
     trustedServiceBypassEnabled: trustedServiceBypass
     tenantId: tenantId
+    managedResourceGroupName: managedResourceGroupName
+    synapseWorkspaceName: synapseWorkspaceName
+    synapseFilesystemName: synapseFilesystemName
+    workspaceAdminObjectId: workspaceAdminObjectId
   }
 }
