@@ -14,7 +14,7 @@ param environmentConfiguration object
 @description('The type of environment to deploy')
 param environmentType string
 param databaseEndpointName string
-param databaseLinkName string = 'hallinc-database-link'
+param databaseLinkName string
 param privateLinkSubnetId string
 param vnetId string
 
