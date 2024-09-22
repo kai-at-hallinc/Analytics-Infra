@@ -45,7 +45,7 @@ param trustedServiceBypass bool
 @secure()
 param tenantId string
 
-var storageAccountName = 'hallinc-store-${resourceNameSuffix}'
+var storageAccountName = 'hallinc-sa-${resourceNameSuffix}'
 var storageAccountBlobContainerName = 'datalake'
 var databaseEndpointName = 'hallinc-database-endpoint'
 var databaseLinkName = 'hallinc-database-link'

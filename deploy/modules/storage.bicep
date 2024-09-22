@@ -5,6 +5,8 @@ param environmentType string
 param environmentConfiguration object
 param privateLinkSubnetId string
 param vnetId string
+@description('param to control dns zone link deployment. set false when redeploying')
+param createDnsZoneLink bool = false
 
 var storageEndpointName = 'hallinc-storage-endpoint'
 var storageLinkName = 'hallinc-storage-link'
@@ -30,7 +32,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
 }
 
-resource storageEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
+resource storageEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = if (createDnsZoneLink) {
   name: storageEndpointName
   location: location
   dependsOn: [

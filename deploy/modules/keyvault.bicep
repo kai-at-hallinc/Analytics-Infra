@@ -3,6 +3,9 @@ param keyVaultName string
 param privateLinkSubnetId string
 param vnetId string
 
+@description('param to control dns zone link deployment. set false when redeploying')
+param createDnsZoneLink bool = false
+
 @description('Specifies the SKU to use for the key vault.')
 param keyVaultSku object = {
   name: 'standard'
@@ -26,7 +29,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
   }
 }
 
-resource keyvaultEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
+resource keyvaultEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = if (createDnsZoneLink) {
   name: keyvaultEndpointName
   location: location
   dependsOn: [

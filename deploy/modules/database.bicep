@@ -14,9 +14,12 @@ param environmentConfiguration object
 @description('The type of environment to deploy')
 param environmentType string
 param databaseEndpointName string
-param databaseLinkName string
+param databaseLinkName string = 'hallinc-database-link'
 param privateLinkSubnetId string
 param vnetId string
+
+@description('param to control dns zone link deployment. set false when redeploying')
+param createDnsZoneLink bool = false
 
 var sqlDatabaseConnectionString = '''
   Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;
@@ -59,7 +62,7 @@ resource sqlServerFirewallRule 'Microsoft.Sql/servers/firewallRules@2022-05-01-p
   }
 }
 
-resource databaseEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
+resource databaseEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = if (createDnsZoneLink) {
   name: databaseEndpointName
   location: location
   dependsOn: [
