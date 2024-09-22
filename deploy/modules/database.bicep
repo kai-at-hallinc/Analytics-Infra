@@ -62,6 +62,9 @@ resource sqlServerFirewallRule 'Microsoft.Sql/servers/firewallRules@2022-05-01-p
 resource databaseEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
   name: databaseEndpointName
   location: location
+  dependsOn: [
+    databaseDnsZone
+  ]
   properties: {
     privateLinkServiceConnections: [
       {
@@ -83,6 +86,9 @@ resource databaseEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
 resource databaseDnsZone 'Microsoft.Network/privateDnsZones@2018-09-01' = {
   name: databaseDnsZoneName
   location: 'global'
+  dependsOn: [
+    sqlServer
+  ]
 }
 
 resource databaseDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {

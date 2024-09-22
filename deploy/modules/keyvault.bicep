@@ -29,6 +29,9 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
 resource keyvaultEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
   name: keyvaultEndpointName
   location: location
+  dependsOn: [
+    keyvaultDnsZone
+  ]
   properties: {
     privateLinkServiceConnections: [
       {

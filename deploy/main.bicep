@@ -36,17 +36,27 @@ param databricksConnectorRoleDefinitionIds array
 @maxLength(24)
 param keyVaultName string = 'hallinckv${resourceNameSuffix}'
 
+@description('create a managed resource groups before hand or not')
+param deploy_managed_rg bool
+
+@description('create synapse workspace with managed virtual network')
+param synapseManagedVirtualNetwork string
+
+@description('create synapse workspace with public network access')
+param synapsePublicNetworkAccess string
+
+@description('allow trusted service if accepted by the service')
+param trustedServiceBypass bool
+
 var storageAccountName = 'hallincst${resourceNameSuffix}'
 var storageAccountBlobContainerName = 'datalake'
 var databaseEndpointName = 'hallinc-database-endpoint'
 var databaseLinkName = 'hallinc-database-link'
 var sqlServerName = 'hallinc-${resourceNameSuffix}'
 var sqlDatabaseName = 'HallincDatabase'
-var deploy_rg = false
 
-//create a resource group if deploy_rg is true
-
-module resourceGroups 'modules/resourceGroups.bicep' = if (deploy_rg) {
+//managed resource group deployment
+module resourceGroups 'modules/resourceGroups.bicep' = if (deploy_managed_rg) {
   name: 'ResourceGroupDeployment'
   scope: subscription()
   params: {
@@ -132,5 +142,20 @@ module keyvault 'modules/keyvault.bicep' = {
     keyVaultName: keyVaultName
     vnetId: databricks_vnet.outputs.vnetId
     privateLinkSubnetId: databricks_vnet.outputs.privateLinkSubnetId
+  }
+}
+
+//create a synapse workspace
+module synapse 'modules/synapse.bicep' = {
+  name: 'synapse'
+  params: {
+    location: location
+    resourceNameSuffix: resourceNameSuffix
+    storageAccountName: storageAccountName
+    synapseManagedVirtualNetwork: synapseManagedVirtualNetwork
+    synapsePublicNetworkAccess: synapsePublicNetworkAccess
+    synapseSqlAdministratorLogin: sqlServerAdministratorLogin
+    synapseSqlAdministratorPassword: sqlServerAdministratorLoginPassword
+    trustedServiceBypassEnabled: trustedServiceBypass
   }
 }

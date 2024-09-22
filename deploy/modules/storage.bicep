@@ -33,6 +33,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 resource storageEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
   name: storageEndpointName
   location: location
+  dependsOn: [
+    storageDnsZone
+  ]
   properties: {
     privateLinkServiceConnections: [
       {
@@ -55,7 +58,7 @@ resource storageDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: storageDnsZoneName
   location: 'global'
   dependsOn: [
-    storageEndpoint
+    storageAccount
   ]
 }
 
