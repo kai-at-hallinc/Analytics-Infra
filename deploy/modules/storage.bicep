@@ -6,7 +6,7 @@ param environmentConfiguration object
 param privateLinkSubnetId string
 param vnetId string
 @description('param to control dns zone link deployment. set false when redeploying')
-param createDnsZoneLink bool = false
+param createDnsZoneLink bool = true
 
 var storageEndpointName = 'hallinc-storage-endpoint'
 var storageLinkName = 'hallinc-storage-link'

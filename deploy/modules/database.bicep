@@ -19,7 +19,7 @@ param privateLinkSubnetId string
 param vnetId string
 
 @description('param to control dns zone link deployment. set false when redeploying')
-param createDnsZoneLink bool = false
+param createDnsZoneLink bool = true
 
 var sqlDatabaseConnectionString = '''
   Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;
