@@ -93,6 +93,9 @@
       },
       "trustedServiceBypass": {
         "value": true
+      },
+      "tenantId": {
+        "value": ""
       }
 
     }

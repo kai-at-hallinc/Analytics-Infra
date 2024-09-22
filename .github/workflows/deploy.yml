@@ -94,6 +94,7 @@ jobs:
             template: ./deploy/main.bicep
             parameters: >
                 deploy/params.sandbox.json
+                tenantId=${{ secrets.AZURE_TENANT_ID }}
                 environmentType=${{ inputs.environmentType }}
                 sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }}
                 sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }}

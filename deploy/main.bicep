@@ -48,6 +48,9 @@ param synapsePublicNetworkAccess string
 @description('allow trusted service if accepted by the service')
 param trustedServiceBypass bool
 
+@secure()
+param tenantId string
+
 var storageAccountName = 'hallincst${resourceNameSuffix}'
 var storageAccountBlobContainerName = 'datalake'
 var databaseEndpointName = 'hallinc-database-endpoint'
@@ -157,5 +160,6 @@ module synapse 'modules/synapse.bicep' = {
     synapseSqlAdministratorLogin: sqlServerAdministratorLogin
     synapseSqlAdministratorPassword: sqlServerAdministratorLoginPassword
     trustedServiceBypassEnabled: trustedServiceBypass
+    tenantId: tenantId
   }
 }
