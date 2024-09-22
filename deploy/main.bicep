@@ -87,6 +87,23 @@ module databricks_vnet 'modules/databricks_vnet.bicep' = {
   }
 }
 
+//create a databricks workspace with secure cluster connectivity and vnet injection
+module databricks_workspace 'modules/databricks-workspace.bicep' = {
+  name: 'databricks_workspace'
+  params: {
+    location: location
+    disablePublicIp: disablePublicIp
+    workspaceName: databricksWorkspaceName
+    pricingTier: databricksPricingTier
+    vnetId: databricks_vnet.outputs.vnetId
+    publicSubnetName: databricks_vnet.outputs.publicSubnetName
+    privateSubnetName: databricks_vnet.outputs.privateSubnetName
+    managedIdentityRoleDefinitionIds: managedIdentityRoleDefinitionIds
+    databricksConnectorRoleDefinitionIds: databricksConnectorRoleDefinitionIds
+    resourceNameSuffix: resourceNameSuffix
+  }
+}
+
 //create a storage account resource with hiearchical namespace enabled
 module storage 'modules/storage.bicep' = {
   name: 'storage'
@@ -116,24 +133,6 @@ module sql_database 'modules/database.bicep' = {
     databaseLinkName: databaseLinkName
     vnetId: databricks_vnet.outputs.vnetId
     privateLinkSubnetId: databricks_vnet.outputs.privateLinkSubnetId
-  }
-}
-
-//create a databricks workspace with secure cluster connectivity and vnet injection
-module databricks_workspace 'modules/databricks-workspace.bicep' = {
-  name: 'databricks_workspace'
-  params: {
-    location: location
-    disablePublicIp: disablePublicIp
-    workspaceName: databricksWorkspaceName
-    pricingTier: databricksPricingTier
-    vnetId: databricks_vnet.outputs.vnetId
-    publicSubnetName: databricks_vnet.outputs.publicSubnetName
-    privateSubnetName: databricks_vnet.outputs.privateSubnetName
-    managedIdentityRoleDefinitionIds: managedIdentityRoleDefinitionIds
-    databricksConnectorRoleDefinitionIds: databricksConnectorRoleDefinitionIds
-    environmentType: environmentType
-    resourceNameSuffix: resourceNameSuffix
   }
 }
 

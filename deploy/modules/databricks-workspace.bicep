@@ -1,7 +1,6 @@
 param location string
 param disablePublicIp bool
 param workspaceName string
-param environmentType string
 
 @description('The pricing tier of workspace.')
 @allowed([
@@ -23,7 +22,7 @@ param databricksConnectorRoleDefinitionIds array
 param resourceNameSuffix string
 
 @description('The name of the managed resource group.')
-var managedResourceGroupName = 'databricks-rg-${environmentType}-${resourceNameSuffix}'
+var managedResourceGroupName = 'databricks-rg-${resourceNameSuffix}'
 
 @description('An optional description to apply to each role assignment, such as the reason this managed identity needs to be granted the role.')
 param roleAssignmentDescription string = 'this role is needed for machine interactions of the databricks workspace'
