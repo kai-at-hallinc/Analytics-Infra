@@ -99,3 +99,4 @@ jobs:
                 sqlServerAdministratorLogin=${{ inputs.sqlServerAdministratorLogin }}
                 sqlServerAdministratorLoginPassword=${{ secrets.sqlServerAdministratorLoginPassword }}
             scope: 'resourcegroup'
+            deploymentMode: Complete
