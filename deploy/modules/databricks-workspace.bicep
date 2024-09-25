@@ -33,7 +33,7 @@ var userManagedIdentityName = 'databricks-user-managed-identity-${uniqueString(w
 
 var managedIdentityRoleAssignments = [
   for roleDefinitionId in managedIdentityRoleDefinitionIds: {
-    name: guid(databricksUserManagedIdentity.id, resourceGroup().id, roleDefinitionId)
+    name: guid(resourceGroup().id, databricksUserManagedIdentity.id, roleDefinitionId)
     roleDefinitionId: roleDefinitionId
   }
 ]
