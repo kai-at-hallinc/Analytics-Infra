@@ -1,7 +1,13 @@
 param location string
 param nsgName string
+param resourceGroupName string
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
+resource existingNsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' existing = {
+  name: nsgName
+  scope: resourceGroup(resourceGroupName)
+}
+
+resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if (existingNsg.id == null) {
   name: nsgName
   location: location
   properties: {

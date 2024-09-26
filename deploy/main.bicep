@@ -45,6 +45,9 @@ param trustedServiceBypass bool
 @secure()
 param tenantId string
 
+@description('resource group name for the deployment')
+param resourceGroupName string
+
 var storageAccountName = 'hallincsa${resourceNameSuffix}'
 var storageAccountBlobContainerName = 'datalake'
 var databaseEndpointName = 'hallinc-database-endpoint'
@@ -75,6 +78,7 @@ module databricks_nsg 'modules/databricks_nsg.bicep' = {
   params: {
     location: location
     nsgName: 'databricks-nsg'
+    resourceGroupName: resourceGroupName
   }
 }
 
